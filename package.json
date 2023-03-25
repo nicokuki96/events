@@ -1,5 +1,4 @@
 {
-  "homepage": "https://nicokuki96.github.io/events",
   "name": "events-news",
   "version": "0.1.0",
   "private": true,
@@ -35,9 +34,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -62,7 +59,6 @@
     "@babel/core": "^7.21.3",
     "@babel/node": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
-    "gh-pages": "^5.0.0",
     "nodemon": "^2.0.21"
   }
 }

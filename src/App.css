@@ -84,3 +84,12 @@ a.bttn-create:focus {
   opacity: 1;
 }
 
+@media (max-width: 600px) {
+  .eventBox {
+    justify-content: center !important;
+  }
+  .bttn-create {
+    font-size: 8px;
+    width: 100px;
+  }
+}

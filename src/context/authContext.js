@@ -14,20 +14,26 @@ export const useAuth = () => {
     return context
 }
 
-export const saveUser = (email, password, name, adress, image, category, imageName) => {
-    const imageFilePath = `users/${auth.currentUser.uid}_${imageName}`;
+export const saveUser = (email, password, name, adress, image, category) => {
+    const imageFilePath = `users/${auth.currentUser.uid}_${name}`;
     const file = storage.ref().child(imageFilePath);
-    file.put(image);
-    db.collection("users").doc(auth.currentUser.uid).set({
-        email,
-        password,
-        name,
-        adress,
-        category,
-        creationDate: new Date().toLocaleString() + "",
-        displayName: auth.currentUser.displayName,
-        image:imageName
-    });
+    // Carga el archivo en Firebase Storage
+    file.put(image).then((snapshot) => {
+        // Obtiene la URL de descarga del archivo cargado
+        snapshot.ref.getDownloadURL().then((url) => {
+            file.put(image);
+            db.collection("users").doc(auth.currentUser.uid).set({
+                email,
+                password,
+                name,
+                adress,
+                category,
+                creationDate: new Date().toLocaleString() + "",
+                displayName: auth.currentUser.displayName,
+                image:url
+            });
+        });
+    }); 
 }
 
 export const AuthProvider = ({children}) => {
@@ -116,14 +122,14 @@ export const AuthProvider = ({children}) => {
         return data
     }
 
-    const getUserPics = async () => {
+    const getUsers = async () => {
         const collectionRef = db.collection("users");
         const data = await collectionRef.get()
         return data
     }
 
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUserPics}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers}}>
             {children}
         </authContext.Provider>
     )

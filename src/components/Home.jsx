@@ -9,8 +9,8 @@ import { storage } from "../firebase";
 import { Container } from "@mui/material";
 
 const Home = (props) => {
-  const { userLog, getEvents, getUserPics } = useAuth();
-  const { setOpen, open, setEvent, event, setUserPics, userPics } = props;
+  const { userLog, getEvents, getUsers } = useAuth();
+  const { setOpen, open, setEvent, event, setUsers, users } = props;
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -27,8 +27,8 @@ const Home = (props) => {
     getEvents().then((data) => {
       setEvent(data.docs.map((doc) => doc.data()));
     });
-    getUserPics().then((data) => {
-      setUserPics(data.docs.map((doc) => doc.data()));
+    getUsers().then((data) => {
+      setUsers(data.docs.map((doc) => doc.data()));
     });
   }, []);
 
@@ -48,7 +48,7 @@ const Home = (props) => {
       )}
       <Container>
         <Grid className="eventBox" mt={5} mb={5} gap={2} container>
-          <Event userPics={userPics} event={event} />
+          <Event users={users} event={event} />
         </Grid>
       </Container>
     </>

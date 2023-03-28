@@ -15,21 +15,22 @@ import uuid from "react-uuid";
 import Grid from "@mui/material/Unstable_Grid2";
 
 const Event = (props) => {
-  const { event, userPics } = props;
-  useEffect(() => {
-    console.log(userPics);
-  }, []);
+  const { event, users } = props;
+
+  const mapeoUserImages = (item) => {
+    const user = users.find((user) => user.name === item.userName);
+    return user.image;
+  };
+
   return (
     event &&
     event.map((item) => {
       return (
         <Grid key={uuid()} item sm={12} md={3}>
-          <Card sx={{ maxWidth: 300 }}>
+          <Card sx={{ maxWidth: 300, textTransform: "capitalize" }}>
             <CardHeader
               avatar={
-                <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                  R
-                </Avatar>
+                <Avatar className="imgIcon" src={mapeoUserImages(item)} />
               }
               action={
                 <IconButton aria-label="settings">
@@ -46,9 +47,9 @@ const Event = (props) => {
               alt={item.image}
               className="imageEvent"
             />
-            <CardContent>
-              <Typography variant="body2" color="text.secondary">
-                {item.description}
+            <CardContent sx={{ bgcolor: "info.main" }} className="priceBox">
+              <Typography variant="body2" color="white">
+                {item.free ? "Free" : `$ ${item.amount}`}
               </Typography>
             </CardContent>
             <CardActions disableSpacing>
@@ -59,15 +60,9 @@ const Event = (props) => {
                 <ShareIcon />
               </IconButton>
               <Grid xs display="flex" justifyContent="end" alignItems="center">
-                <Avatar
-                  src={userPics.map((user) => {
-                    if (user.name === item.userName) {
-                      console.log(user.image);
-                      return user.image;
-                    }
-                    return user.image;
-                  })}
-                />
+                <Typography variant="body2" mr={1} color="text.secondary">
+                  {item.userName}
+                </Typography>
               </Grid>
             </CardActions>
           </Card>

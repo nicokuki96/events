@@ -32,16 +32,16 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 const CreateEvent = (props) => {
   let currentDate = dayjs(new Date().toJSON().slice(0, 10).replace(/-/g, "/"));
-  const { setError, error } = props;
+  const { setError, error, setEvent } = props;
   const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
   const [adress, setAdress] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [checked, setChecked] = useState(false);
   const [date, setDate] = useState(currentDate);
-  const { addEvent, getUserData } = useAuth();
+  const { addEvent, getUserData, getEvents } = useAuth();
 
   useEffect(() => {
     setError("");
@@ -64,9 +64,15 @@ const CreateEvent = (props) => {
         description,
         price,
         checked,
-        imageUrl
+        image
       );
       navigate("/");
+      // no funciona bien
+      setTimeout(async () => {
+        await getEvents().then((data) => {
+          setEvent(data.docs.map((doc) => doc.data()));
+        });
+      }, 5000);
     } catch (error) {
       console.log(error.message);
     }
@@ -78,6 +84,14 @@ const CreateEvent = (props) => {
     } else {
       return price;
     }
+  };
+
+  const onChangeImage = (e) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      setImage(undefined);
+      return;
+    }
+    setImage(e.target.files[0]);
   };
 
   const theme = createTheme();
@@ -203,10 +217,10 @@ const CreateEvent = (props) => {
                     color="primary"
                     aria-label="upload picture"
                     component="label"
-                    value={imageUrl}
+                    value={image.name}
                   >
                     <input
-                      onChange={(e) => setImageUrl(e.target.value)}
+                      onChange={onChangeImage}
                       hidden
                       accept="image/*"
                       type="file"
@@ -215,10 +229,10 @@ const CreateEvent = (props) => {
                   </IconButton>
 
                   <Typography component="p" variant="overline">
-                    {!imageUrl ? "Choose image" : imageUrl}
+                    {!image ? "Choose image" : image.name}
                   </Typography>
-                  {imageUrl && (
-                    <Button onClick={() => setImageUrl("")} size="small">
+                  {image && (
+                    <Button onClick={() => setImage("")} size="small">
                       <ClearIcon fontSize="small" />
                     </Button>
                   )}

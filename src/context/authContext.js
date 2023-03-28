@@ -14,7 +14,10 @@ export const useAuth = () => {
     return context
 }
 
-export const saveUser = (email, password, name, adress, image, category) => {
+export const saveUser = (email, password, name, adress, image, category, imageName) => {
+    const imageFilePath = `users/${auth.currentUser.uid}_${imageName}`;
+    const file = storage.ref().child(imageFilePath);
+    file.put(image);
     db.collection("users").doc(auth.currentUser.uid).set({
         email,
         password,
@@ -23,11 +26,8 @@ export const saveUser = (email, password, name, adress, image, category) => {
         category,
         creationDate: new Date().toLocaleString() + "",
         displayName: auth.currentUser.displayName,
-        image
+        image:imageName
     });
-    const fileName = `${new Date().getTime()}_${image}`;
-    const fileRef = storage.child(fileName);
-    fileRef.put(image);
 }
 
 export const AuthProvider = ({children}) => {
@@ -64,26 +64,32 @@ export const AuthProvider = ({children}) => {
         userRef.get().then((userDoc) => {
             // Verifica si el documento del usuario existe
             if (userDoc.exists) {
-              // Obtiene el nombre del usuario
-              const name = userDoc.data().name;
-              const id = uuid()
-              const eventId = name + "_" + id;
-              setNameUser(name)
-                db.collection("events").doc(eventId).set({
-                    id: id,
-                    userName: name,
-                    category,
-                    title,
-                    date,
-                    hour,
-                    adress,
-                    description,
-                    amount,
-                    free,
-                    image
+            // Obtiene el nombre del usuario
+            const name = userDoc.data().name;
+            const id = uuid()
+            const eventId = name + "_" + id;
+            const imageFilePath = `events/${eventId}_${image.name}`;
+            const fileRef = storage.ref().child(imageFilePath);
+            // Carga el archivo en Firebase Storage
+            fileRef.put(image).then((snapshot) => {
+                // Obtiene la URL de descarga del archivo cargado
+                snapshot.ref.getDownloadURL().then((url) => {
+                    setNameUser(name)
+                    db.collection("events").doc(eventId).set({
+                        id: id,
+                        userName: name,
+                        category,
+                        title,
+                        date,
+                        hour,
+                        adress,
+                        description,
+                        amount,
+                        free,
+                        image:url
+                    });
                 });
-                const fileRef = storage.child(image);
-                fileRef.put(image);
+            });  
             }
             else {
                 console.log("No se encontró el documento del usuario actual.");
@@ -110,19 +116,14 @@ export const AuthProvider = ({children}) => {
         return data
     }
 
-    // const imageEvent = async () => {
-    //     const imagesRef = storage.ref("images");
-    //     const images = urlImage.flatMap((event) => {
-    //     const imageRef = imagesRef.child(event.image);
-    //     return imageRef
-    //         .getDownloadURL()
-    //         .then((url) => ({ id: event.id, url }))
-    //         .catch(() => []);
-    //     });
-    // }
+    const getUserPics = async () => {
+        const collectionRef = db.collection("users");
+        const data = await collectionRef.get()
+        return data
+    }
 
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUserPics}}>
             {children}
         </authContext.Provider>
     )

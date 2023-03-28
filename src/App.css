@@ -93,3 +93,8 @@ a.bttn-create:focus {
     width: 100px;
   }
 }
+
+img.MuiCardMedia-img.imageEvent {
+  height: 28em;
+  max-width: 267px;
+}

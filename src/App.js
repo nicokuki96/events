@@ -22,6 +22,8 @@ function App() {
     password: "",
     image: "",
   });
+  const [event, setEvent] = useState([]);
+  const [userPics, setUserPics] = useState([]);
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -44,11 +46,11 @@ function App() {
     <div className="App">
       <AuthProvider>
         <Routes>
-          <Route exact path="/" element={<Home setOpen={setOpen} open={open}/>}/>
+          <Route exact path="/" element={<Home setUserPics={setUserPics} userPics={userPics} setOpen={setOpen} open={open} setEvent={setEvent} event={event}/>}/>
           <Route exact path="/login" element={<Login setUser={setUser} user={user} handleClick={handleClick} setError={setError} error={error} handleGoogleSignIn={handleGoogleSignIn}/>}/>
           <Route exact path="/register" element={<Register setUser={setUser} user={user} setError={setError} error={error}/>}/>
           <Route exact path="/password_recover" element={<PasswordRecover setError={setError} error={error}/>}/>
-          <Route exact path="/create_event" element={<CreateEvent setError={setError} error={error}/>}/>
+          <Route exact path="/create_event" element={<CreateEvent setError={setError} error={error} setEvent={setEvent}/>}/>
         </Routes>
       </AuthProvider>
     </div>

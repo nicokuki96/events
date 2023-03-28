@@ -9,11 +9,9 @@ import { storage } from "../firebase";
 import { Container } from "@mui/material";
 
 const Home = (props) => {
-  const { userLog, getEvents, imageEvent } = useAuth();
-  const { setOpen, open } = props;
-  const [event, setEvent] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
-  const [imageFile, setImageFile] = useState([]);
+  const { userLog, getEvents, getUserPics } = useAuth();
+  const { setOpen, open, setEvent, event, setUserPics, userPics } = props;
+
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
@@ -25,33 +23,13 @@ const Home = (props) => {
     setOpen(false);
   };
 
-  // const convertUrlsToBlobs = async (imageUrls) => {
-  //   const imageBlobs = [];
-  //   for (const imageUrl of imageUrls) {
-  //     const response = await fetch(imageUrl);
-  //     const blob = await response.blob();
-  //     imageBlobs.push(blob);
-  //   }
-  //   return imageBlobs;
-  // };
-
   useEffect(() => {
-    getEvents()
-      .then((data) => {
-        setEvent(data.docs.map((doc) => doc.data()));
-      })
-      .then(() => {
-        const images = event.map(async (item) => {
-          const imageRef = storage.child(item.image);
-          return imageRef
-            .getDownloadURL()
-            .then((url) => ({ id: item.id, url }))
-            .catch(() => ({ id: item.id, url: null }));
-        });
-        Promise.all(images).then((result) => {
-          setImageUrls(result);
-        });
-      });
+    getEvents().then((data) => {
+      setEvent(data.docs.map((doc) => doc.data()));
+    });
+    getUserPics().then((data) => {
+      setUserPics(data.docs.map((doc) => doc.data()));
+    });
   }, []);
 
   return (
@@ -69,8 +47,8 @@ const Home = (props) => {
         </Snackbar>
       )}
       <Container>
-        <Grid className="eventBox" mt={5} gap={2} container>
-          <Event event={event} imageUrls={imageUrls} />
+        <Grid className="eventBox" mt={5} mb={5} gap={2} container>
+          <Event userPics={userPics} event={event} />
         </Grid>
       </Container>
     </>

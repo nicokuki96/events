@@ -33,7 +33,7 @@ const Register = (props) => {
   const [name, setName] = useState("");
   const [adress, setAdress] = useState("");
   const [email, setEmail] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUser, setImageUser] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { signUp, saveUser } = useAuth();
 
@@ -47,7 +47,15 @@ const Register = (props) => {
     e.preventDefault();
     try {
       await signUp(email, password);
-      await saveUser(email, password, name, adress, imageUrl, category);
+      await saveUser(
+        email,
+        password,
+        name,
+        adress,
+        imageUser,
+        category,
+        imageUser.name
+      );
       navigate("/");
     } catch (error) {
       if (error.code === "auth/invalid-email") {
@@ -66,6 +74,14 @@ const Register = (props) => {
         setError("Missing email");
       }
     }
+  };
+
+  const onChangeImage = (e) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      setImageUser(undefined);
+      return;
+    }
+    setImageUser(e.target.files[0]);
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -206,10 +222,10 @@ const Register = (props) => {
                     color="primary"
                     aria-label="upload picture"
                     component="label"
-                    value={imageUrl}
+                    value={imageUser.name}
                   >
                     <input
-                      onChange={(e) => setImageUrl(e.target.value)}
+                      onChange={onChangeImage}
                       hidden
                       accept="image/*"
                       type="file"
@@ -218,10 +234,10 @@ const Register = (props) => {
                   </IconButton>
 
                   <Typography component="p" variant="overline">
-                    {!imageUrl ? "Choose image" : imageUrl}
+                    {!imageUser ? "Choose image" : imageUser.name}
                   </Typography>
-                  {imageUrl && (
-                    <Button onClick={() => setImageUrl("")} size="small">
+                  {imageUser && (
+                    <Button onClick={() => setImageUser("")} size="small">
                       <ClearIcon fontSize="small" />
                     </Button>
                   )}

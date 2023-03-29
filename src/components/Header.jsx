@@ -12,18 +12,20 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Avatar from "@mui/material/Avatar";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
-  const { userLog, logOut } = useAuth();
-  const pages = ["Events", "Pricing", "Contact"];
+  const { userLog, logOut, getUserData } = useAuth();
   const settings = [
     !userLog ? ("Login", "Register") : "Mi profile",
     "Mi events",
   ];
   const navigate = useNavigate();
+  const [imageIcon, setImageIcon] = useState("");
+  const [userDesc, setUserDesc] = useState("");
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -46,6 +48,13 @@ const Header = () => {
     await logOut();
     navigate("/");
   };
+
+  useEffect(() => {
+    getUserData().then((data) => {
+      setImageIcon(data.image);
+      setUserDesc(data.name);
+    });
+  }, []);
 
   return (
     <AppBar position="static">
@@ -99,11 +108,9 @@ const Header = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
+              <MenuItem href="/" onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Events</Typography>
+              </MenuItem>
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -126,15 +133,13 @@ const Header = () => {
             LOGO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
+            <Button
+              href="/"
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              Events
+            </Button>
           </Box>
           {userLog && (
             <Box mr={3} sx={{ flexGrow: 0 }}>
@@ -160,14 +165,31 @@ const Header = () => {
             </>
           )}
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="User´s settings">
+            <Tooltip title={userDesc}>
               <IconButton
                 className="btnLog"
                 onClick={handleOpenUserMenu}
                 sx={{ p: 0 }}
               >
-                {userLog && (
-                  <AccountCircleIcon color={"inherit"} sx={{ fontSize: 50 }} />
+                {userLog && imageIcon ? (
+                  <Avatar
+                    sx={{
+                      bgcolor: "white",
+                      width: 40,
+                      height: 40,
+                      padding: 0.5,
+                    }}
+                    aria-label="recipe"
+                    className="imgIcon"
+                    src={imageIcon}
+                  />
+                ) : (
+                  <AccountCircleIcon
+                    sx={{
+                      width: 50,
+                      height: 50,
+                    }}
+                  />
                 )}
               </IconButton>
             </Tooltip>

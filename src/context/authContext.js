@@ -49,9 +49,8 @@ export const AuthProvider = ({children}) => {
                 // Verifica si el documento del usuario existe
                 if (userDoc.exists) {
                     // Obtiene el nombre del usuario
-                    const adress = userDoc.data().adress;
-                    console.log(adress)
-                    return adress
+                    const {adress, category, image, name} = userDoc.data()
+                    return {adress, category, image, name }
                 }
             })
         }
@@ -61,7 +60,7 @@ export const AuthProvider = ({children}) => {
         const date = eventDate.format("DD/MM/YYYY")
         const hour = eventDate.format("h:mm a")
         const userRef = db.collection("users").doc(auth.currentUser.uid);
-        userRef.get().then((userDoc) => {
+        return userRef.get().then((userDoc) => {
             // Verifica si el documento del usuario existe
             if (userDoc.exists) {
             // Obtiene el nombre del usuario
@@ -71,11 +70,11 @@ export const AuthProvider = ({children}) => {
             const imageFilePath = `events/${eventId}_${image.name}`;
             const fileRef = storage.ref().child(imageFilePath);
             // Carga el archivo en Firebase Storage
-            fileRef.put(image).then((snapshot) => {
+            return fileRef.put(image).then((snapshot) => {
                 // Obtiene la URL de descarga del archivo cargado
-                snapshot.ref.getDownloadURL().then((url) => {
+                return snapshot.ref.getDownloadURL().then(async (url) => {
                     setNameUser(name)
-                    db.collection("events").doc(eventId).set({
+                    const newEvent = {
                         id: id,
                         userName: name,
                         category,
@@ -87,7 +86,9 @@ export const AuthProvider = ({children}) => {
                         amount,
                         free,
                         image:url
-                    });
+                    };
+                    await db.collection("events").doc(eventId).set(newEvent);
+                    return newEvent;
                 });
             });  
             }
@@ -100,6 +101,7 @@ export const AuthProvider = ({children}) => {
         }); 
     }
 
+    
     const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
     const logOut = () => signOut(auth)
 

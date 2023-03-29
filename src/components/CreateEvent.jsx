@@ -32,7 +32,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 const CreateEvent = (props) => {
   let currentDate = dayjs(new Date().toJSON().slice(0, 10).replace(/-/g, "/"));
-  const { setError, error, setEvent } = props;
+  const { setError, error, setEvent, event } = props;
   const [category, setCategory] = useState("");
   const [image, setImage] = useState("");
   const [title, setTitle] = useState("");
@@ -41,13 +41,13 @@ const CreateEvent = (props) => {
   const [price, setPrice] = useState(0);
   const [checked, setChecked] = useState(false);
   const [date, setDate] = useState(currentDate);
-  const { addEvent, getUserData, getEvents } = useAuth();
+  const { addEvent, getUserData } = useAuth();
 
   useEffect(() => {
     setError("");
-    // La primer vez que usa adress uid es null
-    getUserData().then((adress) => {
-      setAdress(adress);
+    getUserData().then((data) => {
+      setAdress(data.adress);
+      setCategory(data.category);
     });
   }, []);
 
@@ -56,7 +56,7 @@ const CreateEvent = (props) => {
   const handleOnSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addEvent(
+      const addedEvent = await addEvent(
         title,
         adress,
         category,
@@ -66,13 +66,9 @@ const CreateEvent = (props) => {
         checked,
         image
       );
+
+      setEvent([...event, addedEvent]);
       navigate("/");
-      // no funciona bien
-      setTimeout(async () => {
-        await getEvents().then((data) => {
-          setEvent(data.docs.map((doc) => doc.data()));
-        });
-      }, 5000);
     } catch (error) {
       console.log(error.message);
     }
@@ -226,11 +222,10 @@ const CreateEvent = (props) => {
                       type="file"
                     />
                     <PhotoCamera />
+                    <Typography ml={1} component="p" variant="overline">
+                      {!image ? "Choose image" : image.name}
+                    </Typography>
                   </IconButton>
-
-                  <Typography component="p" variant="overline">
-                    {!image ? "Choose image" : image.name}
-                  </Typography>
                   {image && (
                     <Button onClick={() => setImage("")} size="small">
                       <ClearIcon fontSize="small" />

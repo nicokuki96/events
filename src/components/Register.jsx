@@ -47,7 +47,15 @@ const Register = (props) => {
     e.preventDefault();
     try {
       await signUp(email, password);
-      await saveUser(email, password, name, adress, imageUser, category);
+      await saveUser(
+        email,
+        password,
+        name,
+        adress,
+        imageUser,
+        category,
+        imageUser.name
+      );
       navigate("/");
     } catch (error) {
       if (error.code === "auth/invalid-email") {

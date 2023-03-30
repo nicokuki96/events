@@ -1,27 +1,27 @@
 body {
-    padding: 0px;
-    margin: 0;
-    font-family: "Source Sans Pro", sans-serif;
-    background: #F5F0FF;
-    -webkit-font-smoothing: antialiased;
+  padding: 0px;
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  background: #F5F0FF;
+  -webkit-font-smoothing: antialiased;
 }
 
 a.links {
-    text-decoration: none;
-    color: #000;
+  text-decoration: none;
+  color: #000;
 }
 
 a.linksLog {
-    text-decoration: none;
-    color: #fff;
+  text-decoration: none;
+  color: #fff;
 }
 
 .btnGoogle{
-    width: 100% !important;
+  width: 100% !important;
 }
 
 .btnLog {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 .btnNewEvent {
@@ -97,4 +97,8 @@ a.bttn-create:focus {
 img.MuiCardMedia-img.imageEvent {
   height: 28em;
   max-width: 267px;
+}
+
+.imgIcon img.MuiAvatar-img.css-1pqm26d-MuiAvatar-img {
+  height: auto;
 }

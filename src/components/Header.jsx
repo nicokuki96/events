@@ -51,8 +51,8 @@ const Header = () => {
 
   useEffect(() => {
     getUserData().then((data) => {
-      setImageIcon(data.image);
-      setUserDesc(data.name);
+      setImageIcon(data?.image);
+      setUserDesc(data?.name);
     });
   }, []);
 

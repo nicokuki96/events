@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from "react";
 import { createContext, useContext } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail ,sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "firebase/auth";
 import {auth} from '../firebase'
 import { db } from "../firebase";
 import { storage } from "../firebase";
@@ -18,7 +18,7 @@ export const saveUser = (email, password, name, adress, image, category, imageNa
     const imageFilePath = `users/${auth.currentUser.uid}_${imageName}`;
     const file = storage.ref().child(imageFilePath);
     file.put(image);
-    db.collection("users").doc(auth.currentUser.uid).set({
+    return db.collection("users").doc(auth.currentUser.uid).set({
         email,
         password,
         name,
@@ -45,7 +45,7 @@ export const AuthProvider = ({children}) => {
     const getUserData = async () => {
         if (auth.currentUser) {
             const userRef = db.collection("users").doc(auth.currentUser.uid);
-            await userRef.get().then((userDoc) => {
+            return userRef.get().then((userDoc) => {
                 // Verifica si el documento del usuario existe
                 if (userDoc.exists) {
                     // Obtiene el nombre del usuario
@@ -101,7 +101,7 @@ export const AuthProvider = ({children}) => {
         }); 
     }
 
-    
+
     const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
     const logOut = () => signOut(auth)
 
@@ -118,14 +118,14 @@ export const AuthProvider = ({children}) => {
         return data
     }
 
-    const getUserPics = async () => {
+    const getUsers = async () => {
         const collectionRef = db.collection("users");
         const data = await collectionRef.get()
         return data
     }
 
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUserPics}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers}}>
             {children}
         </authContext.Provider>
     )

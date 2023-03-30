@@ -6,7 +6,6 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -46,8 +45,8 @@ const CreateEvent = (props) => {
   useEffect(() => {
     setError("");
     getUserData().then((data) => {
-      setAdress(data.adress);
-      setCategory(data.category);
+      setAdress(data?.adress);
+      setCategory(data?.category);
     });
   }, []);
 
@@ -66,7 +65,6 @@ const CreateEvent = (props) => {
         checked,
         image
       );
-
       setEvent([...event, addedEvent]);
       navigate("/");
     } catch (error) {

@@ -9,7 +9,7 @@ import { storage } from "../firebase";
 import { Container } from "@mui/material";
 
 const Home = (props) => {
-  const { userLog, getEvents, getUserPics } = useAuth();
+  const { userLog, getEvents, getUsers } = useAuth();
   const { setOpen, open, setEvent, event, setUserPics, userPics } = props;
 
   const Alert = React.forwardRef(function Alert(props, ref) {
@@ -27,7 +27,7 @@ const Home = (props) => {
     getEvents().then((data) => {
       setEvent(data.docs.map((doc) => doc.data()));
     });
-    getUserPics().then((data) => {
+    getUsers().then((data) => {
       setUserPics(data.docs.map((doc) => doc.data()));
     });
   }, []);

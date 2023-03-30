@@ -6,6 +6,7 @@ import { db } from "../firebase";
 import { storage } from "../firebase";
 import uuid from "react-uuid";
 import { doc, deleteDoc } from "firebase/firestore";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 export const authContext = createContext()
 
@@ -135,8 +136,12 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    const deleteEvent = async (id) => {
-        await deleteDoc(doc(db, "events", id));
+    const deleteEvent = async (id, image) => {
+        const snapshotEvent = await eventsCurrentUser()
+        const idSelected = snapshotEvent.find((doc) => doc.id.includes(id)).id
+        const imageDeleteRef = ref(storage, image);
+        await deleteObject(imageDeleteRef)
+        await deleteDoc(doc(db, "events", idSelected)); 
     }
 
     return(

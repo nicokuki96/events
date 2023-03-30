@@ -13,18 +13,18 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useAuth } from "../context/authContext";
 import uuid from "react-uuid";
 
-const MyEvents = () => {
-  const [userEvents, setUserEvent] = useState([]);
+const MyEvents = (props) => {
+  const { userEvents, setUserEvents } = props;
   const { eventsCurrentUser, userLog, deleteEvent } = useAuth();
 
   useEffect(() => {
     eventsCurrentUser().then((data) => {
-      setUserEvent(data?.map((doc) => doc.data()));
+      setUserEvents(data?.map((doc) => doc.data()));
     });
   }, [userLog]);
 
-  const handleDelete = (id) => {
-    deleteEvent(id);
+  const handleDelete = (id, image) => {
+    deleteEvent(id, image);
   };
 
   return (
@@ -77,7 +77,7 @@ const MyEvents = () => {
                         variant="contained"
                         color="error"
                         startIcon={<DeleteIcon />}
-                        onClick={() => handleDelete(event.id)}
+                        onClick={() => handleDelete(event.id, event.image)}
                       >
                         Delete
                       </Button>

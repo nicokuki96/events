@@ -150,7 +150,7 @@ const Header = () => {
               </Link>
             </Box>
           )}
-          {!userLog && (
+          {!userLog ? (
             <>
               <MenuItem>
                 <Link className="linksLog" to={"/login"}>
@@ -163,66 +163,70 @@ const Header = () => {
                 </Link>
               </MenuItem>
             </>
-          )}
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title={userDesc}>
-              <IconButton
-                className="btnLog"
-                onClick={handleOpenUserMenu}
-                sx={{ p: 0 }}
+          ) : (
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title={userDesc}>
+                <IconButton
+                  className="btnLog"
+                  onClick={handleOpenUserMenu}
+                  sx={{ p: 0 }}
+                >
+                  {userLog && imageIcon ? (
+                    <Avatar
+                      sx={{
+                        bgcolor: "white",
+                        width: 40,
+                        height: 40,
+                        padding: 0.5,
+                      }}
+                      aria-label="recipe"
+                      className="imgIcon"
+                      src={imageIcon}
+                    />
+                  ) : (
+                    <AccountCircleIcon
+                      sx={{
+                        width: 50,
+                        height: 50,
+                      }}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
               >
-                {userLog && imageIcon ? (
-                  <Avatar
-                    sx={{
-                      bgcolor: "white",
-                      width: 40,
-                      height: 40,
-                      padding: 0.5,
-                    }}
-                    aria-label="recipe"
-                    className="imgIcon"
-                    src={imageIcon}
-                  />
-                ) : (
-                  <AccountCircleIcon
-                    sx={{
-                      width: 50,
-                      height: 50,
-                    }}
-                  />
-                )}
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Link className="links" to={setting}>
-                    <Typography textAlign="center">{setting}</Typography>
+                <MenuItem onClick={handleCloseUserMenu}>
+                  <Link className="links" to={"/my_profile"}>
+                    <Typography textAlign="center">My profile</Typography>
                   </Link>
                 </MenuItem>
-              ))}
-              <MenuItem onClick={handleCloseUserMenu}>
-                <Link className="links" onClick={handleLogOut}>
-                  <Typography textAlign="center">Logout</Typography>
-                </Link>
-              </MenuItem>
-            </Menu>
-          </Box>
+                <MenuItem onClick={handleCloseUserMenu}>
+                  <Link className="links" to={"/my_events"}>
+                    <Typography textAlign="center">My events</Typography>
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={handleCloseUserMenu}>
+                  <Link className="links" onClick={handleLogOut}>
+                    <Typography textAlign="center">Logout</Typography>
+                  </Link>
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

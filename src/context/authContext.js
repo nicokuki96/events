@@ -5,6 +5,7 @@ import {auth} from '../firebase'
 import { db } from "../firebase";
 import { storage } from "../firebase";
 import uuid from "react-uuid";
+import { doc, deleteDoc } from "firebase/firestore";
 
 export const authContext = createContext()
 
@@ -41,7 +42,6 @@ export const AuthProvider = ({children}) => {
         await sendPasswordResetEmail(auth, email)
     }
 
-    // esto no funciona
     const getUserData = async () => {
         if (auth.currentUser) {
             const userRef = db.collection("users").doc(auth.currentUser.uid);
@@ -91,7 +91,7 @@ export const AuthProvider = ({children}) => {
                     return newEvent;
                 });
             });  
-            }
+        }
             else {
                 console.log("No se encontró el documento del usuario actual.");
             }
@@ -100,7 +100,6 @@ export const AuthProvider = ({children}) => {
             console.log("Error al obtener el documento del usuario actual:", error.message);
         }); 
     }
-
 
     const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
     const logOut = () => signOut(auth)
@@ -123,9 +122,25 @@ export const AuthProvider = ({children}) => {
         const data = await collectionRef.get()
         return data
     }
+    const eventsCurrentUser = async () => {
+        if (auth.currentUser) {
+            const userRef = db.collection("users").doc(auth.currentUser.uid)
+            const snapshotUser = await userRef.get()
+            const currentUser = snapshotUser.data().name
+            
+            const eventsRef = db.collection("events").where("userName", "==", currentUser)
+            const snapshotEvent = await eventsRef.get()
+            const eventsUser = snapshotEvent.docs
+            return eventsUser
+        }
+    }
+
+    const deleteEvent = async (id) => {
+        await deleteDoc(doc(db, "events", id));
+    }
 
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers, eventsCurrentUser, deleteEvent}}>
             {children}
         </authContext.Provider>
     )

@@ -5,7 +5,6 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import Event from "../components/Event";
 import Grid from "@mui/material/Grid";
-import { storage } from "../firebase";
 import { Container } from "@mui/material";
 
 const Home = (props) => {

@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import PasswordRecover from './components/PasswordRecover'
 import CreateEvent from './components/CreateEvent'
+import MyEvents from './components/MyEvents';
 import {useNavigate,
   Routes,
   Route,
@@ -51,6 +52,7 @@ function App() {
           <Route exact path="/register" element={<Register setUser={setUser} user={user} setError={setError} error={error}/>}/>
           <Route exact path="/password_recover" element={<PasswordRecover setError={setError} error={error}/>}/>
           <Route exact path="/create_event" element={<CreateEvent setError={setError} error={error} setEvent={setEvent}/>}/>
+          <Route exact path="/my_events" element={<MyEvents setEvent={setEvent} event={event} setError={setError} error={error}/>}/>
         </Routes>
       </AuthProvider>
     </div>

@@ -102,3 +102,10 @@ img.MuiCardMedia-img.imageEvent {
 .imgIcon img.MuiAvatar-img.css-1pqm26d-MuiAvatar-img {
   height: auto;
 }
+
+
+@media (min-width: 600px) {
+  .eventBox .css-sktcqb-MuiGrid-root {
+    flex-basis: 23%;
+  }
+}

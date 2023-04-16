@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardMedia from "@mui/material/CardMedia";
@@ -7,22 +7,26 @@ import CardActions from "@mui/material/CardActions";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import uuid from "react-uuid";
 import Grid from "@mui/material/Unstable_Grid2";
+import CircularProgress from "@mui/material/CircularProgress";
+import Checkbox from "@mui/material/Checkbox";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Favorite from "@mui/icons-material/Favorite";
 
-const Event = (props) => {
+const Events = (props) => {
   const { event, userPics } = props;
 
+  const label = { inputProps: { "aria-label": "Checkbox demo" } };
+
   const mapeoUserImages = (item) => {
-    const user = userPics.find((user) => user.name === item.userName);
-    return user.image;
+    const user = userPics.find((user) => user.name === item?.userName);
+    return user?.image;
   };
 
-  return (
-    event &&
+  return event ? (
     event.map((item) => {
       return (
         <Grid key={uuid()} item sm={12} md={3}>
@@ -36,31 +40,33 @@ const Event = (props) => {
                   <MoreVertIcon />
                 </IconButton>
               }
-              title={item.title}
-              subheader={`${item.date} - ${item.hour}`}
+              title={item?.title}
+              subheader={`${item?.date} - ${item?.hour}`}
             />
             <CardMedia
               component="img"
               height="194"
-              image={item.image}
-              alt={item.image}
+              image={item?.image}
+              alt={item?.image}
               className="imageEvent"
             />
             <CardContent sx={{ bgcolor: "info.main" }} className="priceBox">
               <Typography variant="body2" color="white">
-                {item.free ? "Free" : `$ ${item.amount}`}
+                {item?.free ? "Free" : `$ ${item?.amount}`}
               </Typography>
             </CardContent>
             <CardActions disableSpacing>
-              <IconButton aria-label="add to favorites">
-                <FavoriteIcon />
-              </IconButton>
+              <Checkbox
+                {...label}
+                icon={<FavoriteBorder />}
+                checkedIcon={<Favorite />}
+              />
               <IconButton aria-label="share">
                 <ShareIcon />
               </IconButton>
               <Grid xs display="flex" justifyContent="end" alignItems="center">
                 <Typography variant="body2" mr={1} color="text.secondary">
-                  {item.userName}
+                  {item?.userName}
                 </Typography>
               </Grid>
             </CardActions>
@@ -68,7 +74,9 @@ const Event = (props) => {
         </Grid>
       );
     })
+  ) : (
+    <CircularProgress />
   );
 };
 
-export default Event;
+export default Events;

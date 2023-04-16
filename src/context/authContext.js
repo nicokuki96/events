@@ -5,8 +5,10 @@ import {auth} from '../firebase'
 import { db } from "../firebase";
 import { storage } from "../firebase";
 import uuid from "react-uuid";
-import { doc, deleteDoc } from "firebase/firestore";
-import { getStorage, ref, deleteObject } from "firebase/storage";
+import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import {  ref, deleteObject } from "firebase/storage";
+import moment from "moment/moment";
+import 'firebase/compat/firestore';
 
 export const authContext = createContext()
 
@@ -46,24 +48,25 @@ export const AuthProvider = ({children}) => {
     const getUserData = async () => {
         if (auth.currentUser) {
             const userRef = db.collection("users").doc(auth.currentUser.uid);
-            return userRef.get().then((userDoc) => {
+            const userDoc = await userRef.get()
                 // Verifica si el documento del usuario existe
                 if (userDoc.exists) {
                     // Obtiene el nombre del usuario
                     const {adress, category, image, name} = userDoc.data()
                     return {adress, category, image, name }
                 }
-            })
         }
     }
 
-    const addEvent = (title, adress, category, eventDate, description, amount, free, image) => {
+    const addEvent = async (title, adress, category, eventDate, description, amount, free, image) => {
+        const price = Number(amount)
+        const cleanAmount = parseInt(price, 10)
         const date = eventDate.format("DD/MM/YYYY")
         const hour = eventDate.format("h:mm a")
-        const userRef = db.collection("users").doc(auth.currentUser.uid);
-        return userRef.get().then((userDoc) => {
+        const userRef = db.collection("users").doc(auth?.currentUser?.uid);
+        const userDoc = await userRef.get()
             // Verifica si el documento del usuario existe
-            if (userDoc.exists) {
+        if (userDoc.exists) {
             // Obtiene el nombre del usuario
             const name = userDoc.data().name;
             const id = uuid()
@@ -71,35 +74,31 @@ export const AuthProvider = ({children}) => {
             const imageFilePath = `events/${eventId}_${image.name}`;
             const fileRef = storage.ref().child(imageFilePath);
             // Carga el archivo en Firebase Storage
-            return fileRef.put(image).then((snapshot) => {
+            const snapshot = await fileRef.put(image)
                 // Obtiene la URL de descarga del archivo cargado
-                return snapshot.ref.getDownloadURL().then(async (url) => {
-                    setNameUser(name)
-                    const newEvent = {
-                        id: id,
-                        userName: name,
-                        category,
-                        title,
-                        date,
-                        hour,
-                        adress,
-                        description,
-                        amount,
-                        free,
-                        image:url
-                    };
-                    await db.collection("events").doc(eventId).set(newEvent);
-                    return newEvent;
-                });
-            });  
+            const url = await snapshot.ref.getDownloadURL()
+                setNameUser(name)
+                const newEvent = {
+                    id: id,
+                    userName: name,
+                    category,
+                    title,
+                    date,
+                    hour,
+                    objectDate: eventDate.$d,
+                    adress,
+                    description,
+                    amount: cleanAmount,
+                    free,
+                    image:url,
+                    image_name: image.name
+                };
+                await db.collection("events").doc(eventId).set(newEvent);
+                return newEvent;
         }
-            else {
-                console.log("No se encontró el documento del usuario actual.");
-            }
-        })
-        .catch((error) => {
-            console.log("Error al obtener el documento del usuario actual:", error.message);
-        }); 
+        else {
+            console.log("No se encontró el documento del usuario actual.");
+        }
     }
 
     const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
@@ -123,7 +122,11 @@ export const AuthProvider = ({children}) => {
         const data = await collectionRef.get()
         return data
     }
+
     const eventsCurrentUser = async () => {
+        const dateTime = new Date();
+        const currentDate = moment(dateTime, "DD [de] MMMM [de] YYYY, HH:mm:ss z").toDate();
+
         if (auth.currentUser) {
             const userRef = db.collection("users").doc(auth.currentUser.uid)
             const snapshotUser = await userRef.get()
@@ -131,7 +134,11 @@ export const AuthProvider = ({children}) => {
             
             const eventsRef = db.collection("events").where("userName", "==", currentUser)
             const snapshotEvent = await eventsRef.get()
-            const eventsUser = snapshotEvent.docs
+
+            const eventsUser = snapshotEvent.docs.filter(doc => {
+                const objectDate = doc?.data().objectDate?.toDate();
+                return objectDate > currentDate;
+            });
             return eventsUser
         }
     }
@@ -144,8 +151,34 @@ export const AuthProvider = ({children}) => {
         await deleteDoc(doc(db, "events", idSelected)); 
     }
 
+    const saveEditEvent = async (id, title, adress, category, eventDate, description, price, checked, image) => {
+        const eventsRef = db.collection("events").where("id", "==", id)
+        const date = eventDate.format("DD/MM/YYYY")
+        const hour = eventDate.format("h:mm a")
+        const snapshotEvent = await eventsRef.get()
+        const docId = snapshotEvent.docs[0].id;
+        const eventSelected = doc(db, "events", docId);
+
+        const imageFilePath = `events/${id}`;
+        const fileRef = storage.ref().child(imageFilePath);
+        await fileRef.put(image);
+        const url = await fileRef.getDownloadURL();
+        await updateDoc(eventSelected, {
+            title: title,
+            adress: adress,
+            category: category,
+            description: description,
+            amount: price,
+            date: date,
+            hour: hour,
+            free: checked,
+            image_name: image,
+            image: url
+        });
+    }
+
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers, eventsCurrentUser, deleteEvent}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers, eventsCurrentUser, deleteEvent, saveEditEvent}}>
             {children}
         </authContext.Provider>
     )

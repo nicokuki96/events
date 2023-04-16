@@ -19,10 +19,6 @@ import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { userLog, logOut, getUserData } = useAuth();
-  const settings = [
-    !userLog ? ("Login", "Register") : "Mi profile",
-    "Mi events",
-  ];
   const navigate = useNavigate();
   const [imageIcon, setImageIcon] = useState("");
   const [userDesc, setUserDesc] = useState("");
@@ -54,7 +50,7 @@ const Header = () => {
       setImageIcon(data?.image);
       setUserDesc(data?.name);
     });
-  }, []);
+  }, [userLog]);
 
   return (
     <AppBar position="static">
@@ -111,6 +107,9 @@ const Header = () => {
               <MenuItem href="/" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Events</Typography>
               </MenuItem>
+              <MenuItem href="/users" onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Users</Typography>
+              </MenuItem>
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -139,6 +138,13 @@ const Header = () => {
               sx={{ my: 2, color: "white", display: "block" }}
             >
               Events
+            </Button>
+            <Button
+              href="/users"
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: "white", display: "block" }}
+            >
+              Users
             </Button>
           </Box>
           {userLog && (

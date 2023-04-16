@@ -109,3 +109,14 @@ img.MuiCardMedia-img.imageEvent {
     flex-basis: 23%;
   }
 }
+
+div#vertical-tabpanel-0 {
+  width: 100%;
+}
+
+.userCard {
+  height: 150px;
+}
+.imgUserCard {
+  object-fit: contain !important;
+}

@@ -1,12 +1,8 @@
-import { React, useState, useEffect } from "react";
-import CssBaseline from "@mui/material/CssBaseline";
+import { React } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-
 import Header from "./Header";
-
 import FormEvent from "./FormEvent";
 
 const CreateEvent = (props) => {
@@ -40,12 +36,10 @@ const CreateEvent = (props) => {
     handleClick,
   } = props;
 
-  const theme = createTheme();
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <Header />
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
         <Box
           sx={{
             marginTop: 8,
@@ -88,7 +82,7 @@ const CreateEvent = (props) => {
           handleClick={handleClick}
         />
       </Container>
-    </ThemeProvider>
+    </>
   );
 };
 

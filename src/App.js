@@ -42,6 +42,7 @@ function App() {
   const [checked, setChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [date, setDate] = useState(currentDate);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const onChangeImage = (e) => {
@@ -72,7 +73,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Home setUserPics={setUserPics} userPics={userPics} setOpen={setOpen} open={open} setEvent={setEvent} event={event}/>}/>
 
-          <Route exact path="/users" element={<Users userPics={userPics} setUserPics={setUserPics}/>}/>
+          <Route exact path="/users" element={<Users title={title} setTitle={setTitle} userPics={userPics} setUserPics={setUserPics}/>}/>
           
           <Route exact path="/login" element={<Login setUser={setUser} user={user} handleClick={handleClick} setError={setError} error={error} handleGoogleSignIn={handleGoogleSignIn}/>}/>
 
@@ -82,7 +83,7 @@ function App() {
 
           <Route exact path="/create_event" element={<CreateEvent date={date} setDate={setDate} checked={checked} setChecked={setChecked} price={price} setPrice={setPrice} description={description} setDescription={setDescription} setAdress={setAdress} adress={adress} setTitle={setTitle} title={title} setImage={setImage} image={image} category={category} setCategory={setCategory} currentDate={currentDate} onChangeImage={onChangeImage} editEvent={editEvent} setError={setError} error={error} setEvent={setEvent} setEditEvent={setEditEvent} event={event} handleClick={handleClick} setIsLoading={setIsLoading} isLoading={isLoading}/>}/>
 
-          <Route exact path="/my_events" element={<MyEvents currentDate={currentDate} onChangeImage={onChangeImage} date={date} setDate={setDate} checked={checked} setChecked={setChecked} price={price} setPrice={setPrice} description={description} setDescription={setDescription} setAdress={setAdress} adress={adress} setTitle={setTitle} title={title} setImage={setImage} image={image} category={category} setCategory={setCategory} editEvent={editEvent} setEditEvent={setEditEvent} userEvents={userEvents} setUserEvents={setUserEvents} setEvent={setEvent} event={event} setError={setError} error={error} setIsLoading={setIsLoading} isLoading={isLoading} setOpen={setOpen} open={open} handleClick={handleClick}/>}/>
+          <Route exact path="/my_events" element={<MyEvents currentDate={currentDate} onChangeImage={onChangeImage} date={date} setDate={setDate} checked={checked} setChecked={setChecked} price={price} setPrice={setPrice} description={description} setDescription={setDescription} setAdress={setAdress} adress={adress} setTitle={setTitle} title={title} setImage={setImage} image={image} category={category} setCategory={setCategory} editEvent={editEvent} setEditEvent={setEditEvent} userEvents={userEvents} setUserEvents={setUserEvents} setEvent={setEvent} event={event} setError={setError} error={error} setIsLoading={setIsLoading} isLoading={isLoading} setOpen={setOpen} open={open} handleClick={handleClick} setSearch={setSearch} search={search}/>}/>
 
         </Routes>
       </AuthProvider>

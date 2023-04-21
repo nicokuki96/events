@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { Container } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import { useAuth } from "../context/authContext";
-import uuid from "react-uuid";
 import Drawer from "@mui/material/Drawer";
 import CloseIcon from "@mui/icons-material/Close";
 import FormEvent from "./FormEvent";
@@ -22,6 +15,9 @@ import Popup from "./Popup";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import Search from "./Search";
+import moment from "moment/moment";
+import Tabevents from "./Tabevents";
 
 const MyEvents = (props) => {
   const {
@@ -56,11 +52,14 @@ const MyEvents = (props) => {
     setOpen,
     open,
     handleClick,
+    search,
+    setSearch,
   } = props;
   const { eventsCurrentUser, userLog, deleteEvent, saveEditEvent } = useAuth();
   const [stateEditView, setStateEditView] = useState({ bottom: false });
   const [editEventSelected, setEditEventSelected] = useState([]);
   const [titleDelete, setTitleDelete] = useState();
+  const [tabPanel, setTabPanel] = useState(0);
 
   const handleEdit = (anchor, id) => {
     setEditEvent(true);
@@ -145,14 +144,49 @@ const MyEvents = (props) => {
 
   useEffect(() => {
     eventsCurrentUser().then((data) => {
-      setUserEvents(data?.map((doc) => doc.data()));
+      setUserEvents(data?.docs.map((doc) => doc.data()));
     });
   }, [userLog]);
 
-  const [value, setValue] = useState(0);
+  const getEventsFilter = (filter = "soon") => {
+    console.log(filter);
+    const dateTime = new Date();
+    const currentDate = moment(
+      dateTime,
+      "DD [de] MMMM [de] YYYY, HH:mm:ss z"
+    ).toDate();
+    if (filter === "soon") {
+      const eventsUser = userEvents?.filter((event) => {
+        const objectDate = event.objectDate?.toDate();
+        return objectDate > currentDate;
+      });
+      return eventsUser;
+    }
+    if (!filter || filter === "all") {
+      setUserEvents(userEvents);
+      return userEvents;
+    }
+    if (filter === "last") {
+      const eventsUser = userEvents?.filter((event) => {
+        const objectDate = event.objectDate?.toDate();
+        return objectDate < currentDate;
+      });
+      return eventsUser;
+    }
+  };
+
+  const getUserEvents = () => {
+    if (!search) return userEvents;
+    const searchMap = userEvents.filter((event) => {
+      if (event?.title?.includes(search)) {
+        return event;
+      }
+    });
+    return searchMap;
+  };
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setTabPanel(newValue);
   };
 
   const TabPanel = (props) => {
@@ -160,12 +194,12 @@ const MyEvents = (props) => {
     return (
       <div
         role="tabpanel"
-        hidden={value !== index}
+        hidden={tabPanel !== index}
         id={`vertical-tabpanel-${index}`}
         aria-labelledby={`vertical-tab-${index}`}
         {...other}
       >
-        {value === index && (
+        {tabPanel === index && (
           <Box sx={{ p: 3 }}>
             <Typography component={"span"}>{children}</Typography>
           </Box>
@@ -177,7 +211,7 @@ const MyEvents = (props) => {
   TabPanel.propTypes = {
     children: PropTypes.node,
     index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
+    tabPanel: PropTypes.number,
   };
 
   const a11yProps = (index) => {
@@ -225,6 +259,7 @@ const MyEvents = (props) => {
       </Container>
     </Box>
   );
+
   return (
     <>
       <Header />
@@ -246,7 +281,7 @@ const MyEvents = (props) => {
         <Tabs
           orientation="vertical"
           variant="scrollable"
-          value={value}
+          value={tabPanel}
           onChange={handleChange}
           aria-label="Vertical tabs example"
           sx={{
@@ -256,11 +291,24 @@ const MyEvents = (props) => {
             width: "150px",
           }}
         >
-          <Tab label={`Soon (${userEvents?.length})`} {...a11yProps(0)} />
-          <Tab label="All" {...a11yProps(1)} />
-          <Tab label="Last" {...a11yProps(2)} />
+          <Tab
+            onClick={() => getEventsFilter("soon")}
+            label={`Soon (${userEvents?.length})`}
+            {...a11yProps(0)}
+          />
+          <Tab
+            onClick={() => getEventsFilter("all")}
+            label="All"
+            {...a11yProps(1)}
+          />
+          <Tab
+            onClick={() => getEventsFilter("last")}
+            label="Last"
+            {...a11yProps(2)}
+          />
         </Tabs>
-        <TabPanel className="tabContent" value={value} index={0}>
+        <TabPanel className="tabContent" value={tabPanel} index={0}>
+          <Search setSearch={setSearch} search={search} />
           <Grid
             className="eventBox"
             sx={{ display: "flex" }}
@@ -270,61 +318,12 @@ const MyEvents = (props) => {
             container
           >
             {userEvents && !isLoading ? (
-              userEvents.map((event) => {
-                return (
-                  <Grid key={uuid()} item sm={12} md={3}>
-                    <Card className="myEvent" sx={{ maxWidth: 345 }}>
-                      <CardMedia
-                        component="img"
-                        alt="green iguana"
-                        height="150"
-                        image={event.image}
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                          {event.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {`${event.date} - ${event.hour}`}
-                        </Typography>
-                        <Typography variant="body2" color="text.primary">
-                          {event.adress}
-                        </Typography>
-                      </CardContent>
-                      <CardContent
-                        sx={{ bgcolor: "info.main" }}
-                        className="priceBox"
-                      >
-                        <Typography variant="body2" color="white">
-                          {event.free ? "Free" : `$ ${event.amount}`}
-                        </Typography>
-                      </CardContent>
-                      <CardActions>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="success"
-                          onClick={() => handleEdit("bottom", event.id)}
-                          startIcon={<EditIcon />}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="error"
-                          startIcon={<DeleteIcon />}
-                          onClick={() =>
-                            handleDelete(event.id, event.image, event.title)
-                          }
-                        >
-                          Delete
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              })
+              <Tabevents
+                getEventsFilter={getEventsFilter}
+                getUserEvents={getUserEvents}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
             ) : (
               <Grid
                 className="eventBox"
@@ -338,11 +337,65 @@ const MyEvents = (props) => {
             )}
           </Grid>
         </TabPanel>
-        <TabPanel value={value} index={1}>
-          Item Two
+        <TabPanel value={tabPanel} index={1}>
+          <Search setSearch={setSearch} search={search} />
+          <Grid
+            className="eventBox"
+            sx={{ display: "flex" }}
+            mt={5}
+            mb={5}
+            gap={2}
+            container
+          >
+            {userEvents && !isLoading ? (
+              <Tabevents
+                getEventsFilter={getEventsFilter}
+                getUserEvents={getUserEvents}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
+            ) : (
+              <Grid
+                className="eventBox"
+                sx={{ display: "flex", justifyContent: "center" }}
+                mt={5}
+                mb={5}
+                container
+              >
+                <CircularProgress />
+              </Grid>
+            )}
+          </Grid>
         </TabPanel>
-        <TabPanel value={value} index={2}>
-          Item Three
+        <TabPanel value={tabPanel} index={2}>
+          <Search setSearch={setSearch} search={search} />
+          <Grid
+            className="eventBox"
+            sx={{ display: "flex" }}
+            mt={5}
+            mb={5}
+            gap={2}
+            container
+          >
+            {userEvents && !isLoading ? (
+              <Tabevents
+                getEventsFilter={getEventsFilter}
+                getUserEvents={getUserEvents}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+              />
+            ) : (
+              <Grid
+                className="eventBox"
+                sx={{ display: "flex", justifyContent: "center" }}
+                mt={5}
+                mb={5}
+                container
+              >
+                <CircularProgress />
+              </Grid>
+            )}
+          </Grid>
         </TabPanel>
       </Box>
 

@@ -7,13 +7,12 @@ import { Grid } from "@mui/material";
 
 const Users = (props) => {
   const { getUsers } = useAuth();
-  const { setUserPics, userPics } = props;
+  const { setUserPics, userPics, setTitle, title } = props;
 
   useEffect(() => {
     getUsers().then((data) => {
       setUserPics(data.docs.map((doc) => doc.data()));
     });
-    console.log(userPics);
   }, []);
 
   return (
@@ -28,7 +27,7 @@ const Users = (props) => {
           gap={2}
           container
         >
-          <User userPics={userPics} />
+          <User title={title} setTitle={setTitle} userPics={userPics} />
         </Grid>
       </Container>
     </>

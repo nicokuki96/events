@@ -7,7 +7,6 @@ import { storage } from "../firebase";
 import uuid from "react-uuid";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import {  ref, deleteObject } from "firebase/storage";
-import moment from "moment/moment";
 import 'firebase/compat/firestore';
 
 export const authContext = createContext()
@@ -124,22 +123,13 @@ export const AuthProvider = ({children}) => {
     }
 
     const eventsCurrentUser = async () => {
-        const dateTime = new Date();
-        const currentDate = moment(dateTime, "DD [de] MMMM [de] YYYY, HH:mm:ss z").toDate();
-
         if (auth.currentUser) {
             const userRef = db.collection("users").doc(auth.currentUser.uid)
             const snapshotUser = await userRef.get()
             const currentUser = snapshotUser.data().name
-            
             const eventsRef = db.collection("events").where("userName", "==", currentUser)
             const snapshotEvent = await eventsRef.get()
-
-            const eventsUser = snapshotEvent.docs.filter(doc => {
-                const objectDate = doc?.data().objectDate?.toDate();
-                return objectDate > currentDate;
-            });
-            return eventsUser
+            return snapshotEvent
         }
     }
 
@@ -177,8 +167,24 @@ export const AuthProvider = ({children}) => {
         });
     }
 
+    const addReview = async (review, stars, userName) => {
+        const starNumber = Number(stars)
+            await db.collection("reviews").add({
+                review,
+                starNumber,
+                user: userLog.displayName ? userLog.displayName : userLog.email,
+                qualifiedUser: userName
+            });
+    }
+
+    const getReviews = async () => {
+            const collectionRef = db.collection("reviews")
+            const snapshotRev = await collectionRef.get()
+            return snapshotRev
+    }
+
     return(
-        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers, eventsCurrentUser, deleteEvent, saveEditEvent}}>
+        <authContext.Provider value={{signUp, login, userLog, logOut, resetPassword, saveUser, addEvent, getUserData, getEvents, getUsers, eventsCurrentUser, deleteEvent, saveEditEvent, addReview, getReviews}}>
             {children}
         </authContext.Provider>
     )
